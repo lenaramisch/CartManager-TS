@@ -1,0 +1,82 @@
+delete:
+  summary: Delete cart by cartID
+  operationId: deleteCartById
+  tags:
+    - cart
+  parameters:
+    - name: cartId
+      in: path
+      description: ID of cart to delete
+      required: true
+      schema:
+        type: integer
+        format: int64
+  responses:
+    '200':
+      description: Deleted cart (cart ID)
+    '400':
+      description: Invalid ID supplied
+    '404':
+      description: Can not find cart (cart ID)
+ 
+  # This API has no security
+  security: []
+
+get:
+  summary: Get a cart by cartID with all its content
+  operationId: getCartById
+  tags:
+    - shopping
+  parameters:
+    - name: cartId
+      in: path
+      description: ID of cart from which content is to get
+      required: true
+      schema:
+        type: integer
+        format: int64
+  responses:
+    '200':
+      description: successful operation
+      content:
+        application/json:
+          schema:
+            items: 
+              $ref: '../../schemas/_index.yml#/CartContentResponse'
+    '400':
+      description: Invalid ID supplied
+    '404':
+      description: Can not find cart (cart ID)
+ 
+  # This API has no security
+  security: []
+
+post:
+  summary: Clear cart, add item to cart or remove item from cart
+  operationId: postCart
+  tags:
+    - cart
+  parameters:
+    - name: cartId
+      in: path
+      description: ID of cart
+      required: true
+      schema:
+        type: integer
+        format: int64
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema: 
+          $ref: '../../schemas/_index.yml#/CartsPostRequest'
+  responses:
+    '200':
+      description: successful operation
+    '400':
+      description: Invalid ID supplied
+    '404':
+      description: Can not find DB entry
+ 
+  # This API has no security
+  security: []

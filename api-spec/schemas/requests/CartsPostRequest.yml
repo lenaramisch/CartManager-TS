@@ -1,0 +1,14 @@
+type: object
+properties:
+  action:
+    $ref: '../../schemas/_index.yml#/Actions'
+  itemid:
+    type: integer
+    format: int64
+    example: 2
+  amount:
+    type: integer
+    format: int64
+    example: 2
+required:
+  - action

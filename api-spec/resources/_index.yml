@@ -1,0 +1,20 @@
+/items:
+  $ref: './item/Items.yml'
+
+/items/{itemId}:
+  $ref: './item/ItemById.yml'
+
+/users:
+  $ref: './user/Users.yml'
+
+/users/{userId}:
+  $ref: './user/UserById.yml'
+
+/carts:
+  $ref: './cart/Carts.yml'
+
+/carts/user/{userId}:
+  $ref: './cart/CartByUserId.yml'
+
+/carts/{cartId}:
+  $ref: './cart/CartById.yml'

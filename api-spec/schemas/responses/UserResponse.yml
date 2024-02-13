@@ -1,0 +1,17 @@
+type: object
+properties:
+  id:
+    type: integer
+    format: int64
+    example: 1
+  username:
+    type: string
+    example: Sampler1998
+  created_at:
+    type: string
+    format: RFC3339
+    example: 2019-10-12T07:20:50.52Z
+required:
+  - id
+  - username
+  - created_at

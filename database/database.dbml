@@ -1,0 +1,30 @@
+Table users {
+  id integer [primary key, increment]
+  username varchar
+  created_at timestamp [default: `now()`]
+}
+
+Table carts {
+  id integer [primary key, increment]
+  user_id integer
+  name varchar
+  created_at timestamp [default: `now()`]
+}
+
+Table items {
+  id integer [primary key, increment]
+  price float
+  name varchar
+  created_at timestamp [default: `now()`]
+}
+
+Table item_in_cart {
+  id integer [primary key, increment]
+  cart_id integer
+  item_id integer
+  amount integer
+}
+
+ref: carts.user_id > users.id
+ref: item_in_cart.cart_id > carts.id
+ref: item_in_cart.item_id > items.id

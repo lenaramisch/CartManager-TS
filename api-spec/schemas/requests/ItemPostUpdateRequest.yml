@@ -1,0 +1,12 @@
+type: object
+properties:
+  name:
+    type: string
+    example: Apple
+  price:
+    type: number
+    format: float32
+    example: 0.5
+required:
+  - name
+  - price

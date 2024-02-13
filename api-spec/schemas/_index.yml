@@ -1,0 +1,29 @@
+# Responses
+CartContentResponse:
+  $ref: './responses/CartContentResponse.yml'
+
+CartResponse:
+  $ref: './responses/CartResponse.yml'
+
+ItemResponse:
+  $ref: './responses/ItemResponse.yml'
+
+UserResponse:
+  $ref: './responses/UserResponse.yml'
+
+# Requests
+CartPostRequest:
+  $ref: './requests/CartPostRequest.yml'
+
+CartsPostRequest:
+  $ref: './requests/CartsPostRequest.yml'
+  
+ItemPostUpdateRequest:
+  $ref: './requests/ItemPostUpdateRequest.yml'
+
+UserPostUpdateRequest:
+  $ref: './requests/UserPostUpdateRequest.yml'
+
+# Types
+Actions:
+  $ref: './types/actions.yml'

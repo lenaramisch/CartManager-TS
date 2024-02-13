@@ -1,0 +1,4 @@
+postgres-data
+node_modules
+api-spec/bundle.yml
+dist

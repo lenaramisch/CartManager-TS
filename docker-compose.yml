@@ -2,7 +2,7 @@ version: '3.5'
 
 services:
   db:
-    container_name: cartmanager_db
+    container_name: cartmanager_db_ts
     image: postgres:alpine3.18
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
@@ -14,7 +14,7 @@ services:
       - "5432:5432"
 
   dbmigration:
-    container_name: cartmanager_migration
+    container_name: cartmanager_migration_ts
     build:
       context: .
       dockerfile: ./database/build/migrate.dockerfile

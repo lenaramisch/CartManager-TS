@@ -19,7 +19,7 @@ ENTRYPOINT ["sql-migrate"]
 
 FROM image
 
-COPY ../migrations /migrations
+COPY ./database/migrations /migrations
 
 WORKDIR /migrations
 ENTRYPOINT ["sql-migrate", "up", "-env=development"]

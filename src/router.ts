@@ -4,50 +4,40 @@ const users = require('./handler/users.ts');
 const items = require('./handler/items.ts');
 const carts = require('./handler/carts.ts');
 
-//Testing:
-/* module.exports = function(app: any) {
-    app.get('/', async (req: Request, res: Response) => {
-        res.status(200).send("This is working!");
-    })
-
-    app.get('/items', async (req: Request, res: Response) => {
-        const result = await items.getItems();
-        res.status(result.status).send(result.data);
-    });
-}; */
-
 module.exports = function(app: any) {
+    //Home route:
+        app.get('/', async (req: Request, res: Response) => {
+            res.status(200).send("This is working!");
+        }),
     // Item routes
-    /* app.post('/items', async (req: Request, res: Response) => {
-        const { name, price } = req.body;
-        const result = await items.addItem(name, price);
-        res.status(result.status).send(result.message);
-    }); */
-
     app.get('/items', async (req: Request, res: Response) => {
         const result = await items.getAllItems();
         res.status(result.status).send(result.data || result.message);
-    });
-
-   /*  app.get('/items/:id', async (req: Request, res: Response) => {
+    }),
+    app.post('/items', async (req: Request, res: Response) => {
+        const { name, price } = req.body;
+        const result = await items.addItem(name, price);
+        res.status(result.status).send(result.message);
+    }),
+    app.get('/items/:id', async (req: Request, res: Response) => {
         const { id } = req.params;
         const result = await items.getItemById(id);
         res.status(result.status).send(result.data || result.message);
-    });
-
+    }),
     app.put('/items/:id', async (req: Request, res: Response) => {
-        const { id } = req.params;
+        const id = parseInt(req.params.id as string)
         const { name, price } = req.body;
         const result = await items.updateItemById(id, name, price);
         res.status(result.status).send(result.message);
-    });
-
+    }),
     app.delete('/items/:id', async (req: Request, res: Response) => {
-        const { id } = req.params;
+        const id = parseInt(req.params.id as string)
         const result = await items.deleteItemById(id);
         res.status(result.status).send(result.message);
-    });
+    })
+};
 
+/*
     // User routes
     app.get('/users', async (req: Request, res: Response) => {
         const result = await users.getAllUsers();
@@ -131,4 +121,3 @@ module.exports = function(app: any) {
         }
         res.status(result.status).send(result.message);
     }); */
-};

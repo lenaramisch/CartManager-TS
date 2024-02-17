@@ -34,42 +34,39 @@ module.exports = function(app: any) {
         const id = parseInt(req.params.id as string)
         const result = await items.deleteItemById(id);
         res.status(result.status).send(result.message);
-    })
-};
-
-/*
+    }),
     // User routes
     app.get('/users', async (req: Request, res: Response) => {
         const result = await users.getAllUsers();
         res.status(result.status).send(result.data || result.message);
-    });
-
+    }),
+    
     app.post('/users', async (req: Request, res: Response) => {
         const { username } = req.body;
         const result = await users.addUser(username);
         res.status(result.status).send(result.message);
-    });
-
+    }),
+    
     app.get('/users/:id', async (req: Request, res: Response) => {
-        const { id } = req.params;
+        const id = parseInt(req.params.id as string)
         const result = await users.getUserById(id);
         res.status(result.status).send(result.data || result.message);
-    });
-
-
+    }),
+    
     app.put('/users/:id', async (req: Request, res: Response) => {
-        const { id } = req.params;
+        const id = parseInt(req.params.id as string)
         const { username } = req.body;
         const result = await users.updateUserById(id, username);
         res.status(result.status).send(result.message);
-    });
-
+    }),
+    
     app.delete('/users/:id', async (req: Request, res: Response) => {
-        const { id } = req.params;
+        const id = parseInt(req.params.id as string)
         const result = await users.deleteUserById(id);
         res.status(result.status).send(result.message);
-    });
-
+    })
+};
+/* 
     // Carts routes
     app.get('/carts', async (req: Request, res: Response) => {
         const result = await carts.getAllCarts();

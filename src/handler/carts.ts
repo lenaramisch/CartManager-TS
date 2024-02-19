@@ -58,8 +58,12 @@ module.exports = {
         try {
             let domainCart: CartDomain = await domain.getCartById(cartid);
             console.log("domainCart is: ", JSON.stringify(domainCart))
+            if (domainCart === undefined || Object.keys(domainCart).length === 0) {
+                return { status: 404, message: `Can not find cart (cart ID: ${cartid})`};
+            }
             const dtoCart = new CartDTO(domainCart.id, domainCart.userid, domainCart.name);
             if (domainCart.cartItems instanceof Array) {
+                console.log("domainCart.cartItems is: ", JSON.stringify(domainCart.cartItems))
                 const dtoCartItems = domainCart.cartItems.map((cartItem: ItemInCartDomain) => new ItemInCartDTO(cartItem.item.id, cartItem.amount));
                 dtoCart.items = dtoCartItems
             }

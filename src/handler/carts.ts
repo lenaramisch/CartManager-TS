@@ -59,7 +59,8 @@ module.exports = {
             let domainCart = await domain.getCartContent(cartid);
             console.log(JSON.stringify(domainCart))
             if (Array.isArray(domainCart.cartItems)) {
-                const dtoCart = domainCart.cartItems.map((cartItem: ItemInCartDomain) => new ItemInCartDTO(cartid, cartItem.item.id, cartItem.amount));
+                const dtoCartItems = domainCart.cartItems.map((cartItem: ItemInCartDomain) => new ItemInCartDTO(cartItem.item.id, cartItem.amount));
+                const dtoCart = new CartDTO(domainCart.id, domainCart.userid, domainCart.name, dtoCartItems);
                 return { status: 200, data: dtoCart };
             } else {
                 throw new Error('Cart Content is not an array');

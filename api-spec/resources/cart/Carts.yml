@@ -11,7 +11,7 @@ get:
           schema:
             type: array
             items: 
-              $ref: '../../schemas/_index.yml#/CartResponse'
+              $ref: '../../schemas/_index.yml#/Cart'
     '404':
       description: No carts found
  

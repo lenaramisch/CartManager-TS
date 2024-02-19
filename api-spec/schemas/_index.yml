@@ -1,15 +1,4 @@
 # Responses
-CartContentResponse:
-  $ref: './responses/CartContentResponse.yml'
-
-CartResponse:
-  $ref: './responses/CartResponse.yml'
-
-ItemResponse:
-  $ref: './responses/ItemResponse.yml'
-
-UserResponse:
-  $ref: './responses/UserResponse.yml'
 
 # Requests
 CartPostRequest:
@@ -27,3 +16,15 @@ UserPostUpdateRequest:
 # Types
 Actions:
   $ref: './types/actions.yml'
+
+Cart:
+  $ref: './types/Cart.yml'
+
+Item:
+  $ref: './types/Item.yml'
+
+ItemInCart:
+  $ref: './types/ItemInCart.yml'
+  
+User:
+  $ref: './types/User.yml'

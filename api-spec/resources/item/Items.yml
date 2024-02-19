@@ -11,7 +11,7 @@ get:
           schema:
             type: array
             items: 
-              $ref: '../../schemas/_index.yml#/ItemResponse'
+              $ref: '../../schemas/_index.yml#/Item'
     '404':
       description: No items found
     '409':

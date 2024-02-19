@@ -11,12 +11,7 @@ properties:
     type: number
     format: float32
     example: 0.5
-  created_at:
-    type: string
-    format: RFC3339
-    example: 2019-10-12T07:20:50.52Z
 required:
   - id
   - name
   - price
-  - created_at

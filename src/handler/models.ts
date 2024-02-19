@@ -16,13 +16,13 @@ export class CartDTO {
     constructor (
         public id: number, 
         public userid: number, 
-        public name: string
+        public name: string,
+        public items?: ItemInCartDTO[],
     ) {}
 }
 
 export class ItemInCartDTO {
     constructor (
-        public cart_id: number,
         public item_id: number,
         public amount: number
     ) {}

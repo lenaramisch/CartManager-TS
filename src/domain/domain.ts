@@ -1,6 +1,7 @@
 import db from '../database/db';
 import { CartDB } from '../database/models';
 import { CartDomain, ItemInCartDomain } from './models';
+
 module.exports = {
     getAllItems: async function () {
         const allItems = await db.getAllItems();

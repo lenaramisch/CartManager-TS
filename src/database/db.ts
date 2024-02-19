@@ -120,7 +120,8 @@ const database: Database = {
         try {
             const dbResult = await pool.query(getItemByIdQuery, [item_id]);
             const dbModelItem = dbResult.rows.map((row: ItemRow) => new ItemDB(row.id, row.price, row.name, row.created_at))
-            return dbModelItem.map((dbItem: ItemDB) => new ItemDomain(dbItem.id, dbItem.price, dbItem.name))
+            const domainModel = dbModelItem.map((dbItem: ItemDB) => new ItemDomain(dbItem.id, dbItem.price, dbItem.name))
+            return domainModel[0]
         } catch (error: any) {
             return error
         }
@@ -234,25 +235,27 @@ const database: Database = {
     },
     getCartContent: async function (cart_id: number) {
         try {
+            // query the database
             const dbResult = await pool.query(getCartContentQuery, [cart_id]);
             if (Object.keys(dbResult).length === 0) {
                 return [];
             }
+            // map the raw QueryResult to db model
             const dbModelItemInCart: ItemInCartDB[] = dbResult.rows.map((row :ItemInCartRow) => new ItemInCartDB(row.id, row.cart_id, row.item_id, row.amount, row.created_at))
 
-            // map raw QueryResult to db model
-            const itemInCartDomain: Promise<ItemInCartDomain | Error>[] = dbModelItemInCart.map(async (dbModelItemInCart) => {
+            // map db model to domain model
+            const promises: Promise<ItemInCartDomain | Error>[] = dbModelItemInCart.map(async (dbModelItemInCart) => {
                 const domainItem = await this.getItemById(dbModelItemInCart.item_id);
-                if (domainItem instanceof ItemDomain) {
-                    console.log("domainItem: ", domainItem)
-                    const amount = dbModelItemInCart.amount;
-                    return new ItemInCartDomain(domainItem, amount);
-                } else {
-                    console.log("Got an error!")
+                if (domainItem instanceof Error) {
                     return new Error("Error occurred while creating ItemInCartDomain"); // Return an Error object
                 }
+                const amount = dbModelItemInCart.amount;
+                return new ItemInCartDomain(domainItem, amount);
             });
-            await Promise.all(itemInCartDomain);
+            
+            // await all promises
+            const itemInCartDomain = await Promise.all(promises);
+
             return itemInCartDomain
         } catch (error: any) {
             return error;

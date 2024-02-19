@@ -27,6 +27,7 @@ const getItemInCartQuery = 'SELECT * FROM item_in_cart WHERE cart_id = $1 AND it
 const addItemToCartQuery = 'INSERT INTO item_in_cart(cart_id, item_id, amount) VALUES($1, $2, $3)';
 const removeItemFromCartQuery = 'DELETE FROM item_in_cart WHERE cart_id = $1 AND item_id = $2';
 const clearCartQuery = 'DELETE FROM item_in_cart WHERE cart_id = $1';
+const editAmountofItemInCartQuery = 'UPDATE item_in_cart SET amount = $1 WHERE cart_id = $2 AND item_id = $3';
 
 interface ItemRow {
     id: number;
@@ -83,9 +84,14 @@ interface Database {
     getAllCarts: () => Promise<CartDomain[] | Error>;
     addCart: (name: string, user_id: number) => Promise<string | Error>;
     deleteCartsByUserId: (user_id: number) => Promise<string | Error >;
-    getCartById: (cart_id: number) => Promise<CartDomain | Error>;
+    getCartMetaById: (cart_id: number) => Promise<CartDomain | Error>;
     deleteCartById: (cart_id: number) => Promise<string | Error>;
     getCartContent: (cart_id: number) => Promise<ItemInCartDomain[]| Error>;
+    /* ------ */
+    getAmountOfItemInCart: (cart_id: number, item_id: number) => Promise<ItemInCartDomain| Error>;
+    addItemToCart: (cart_id: number, item_id: number, amount: number) => Promise<string | Error>;
+    removeItemFromCart: (cart_id: number, item_id: number) => Promise<string | Error>;
+    clearCart: (cart_id: number) => Promise<string | Error>;
 }
 
 const database: Database = {
@@ -206,7 +212,7 @@ const database: Database = {
             return error
         }
     },
-    getCartById: async function (cart_id: number) {
+    getCartMetaById: async function (cart_id: number) {
         try {
             const dbResult = await pool.query(getCartByIdQuery, [cart_id]);
             // map raw QueryResult to db model
@@ -233,7 +239,7 @@ const database: Database = {
                 return [];
             }
             // map raw QueryResult to db model
-            const dbModelItemInCart: ItemInCartDB[] = dbResult.rows.map((row: ItemInCartRow) => new ItemInCartDB(row.id, row.cart_id, row.item_id, row.amount, row.created_at))
+            const dbModelItemInCart: ItemInCartDB[] = dbResult.rows.map((row :ItemInCartRow) => new ItemInCartDB(row.id, row.cart_id, row.item_id, row.amount, row.created_at))
 
             // Get all items asynchronously
             const itemPromises = dbModelItemInCart.map(async (dbModelItemInCart) => {
@@ -247,10 +253,68 @@ const database: Database = {
             });
             // Await all promises and get resolved items
             const domainModelCartItems = await Promise.all(itemPromises);
-            return domainModelCartItems;
+            const itemsList = domainModelCartItems[0]
+            // we now have a list of all the items
+            // we need to build domain items in cart from these with their amounts
+            return ;
         } catch (error: any) {
             return error;
         }
     },
+    getAmountOfItemInCart: async function (cart_id: number, item_id: number) {
+        try {
+            const dbResult = pool.query(getItemInCartQuery, [cart_id, item_id]);
+            const dbModelItemInCart = dbResult.rows.map((row: ItemInCartRow )=> new ItemInCartDB(row.id, row.cart_id, row.item_id, row.amount, row.created_at));
+            
+            const itemPromises = dbModelItemInCart.map(async (dbModelItemInCart: ItemInCartDB) => {
+                const domainItem = await this.getItemById(dbModelItemInCart.item_id);
+                const amount = dbModelItemInCart.amount;
+                if (domainItem instanceof ItemDomain) {
+                    return new ItemInCartDomain(domainItem, amount);
+                } else {
+                    return domainItem; //Error
+                }
+            });
+            const domainModelCartItems = await Promise.all(itemPromises);
+            return domainModelCartItems
+        } catch (error: any) {
+            return error
+        }
+    },
+    addItemToCart: async function (cart_id: number, item_id: number, amount: number) {
+        try {
+            const cartItem = this.getAmountOfItemInCart(cart_id, item_id);
+            if (Object.keys(cartItem).length === 0) {
+                pool.query(addItemToCartQuery, [cart_id, item_id, amount]);
+                return "ok"
+            }
+            
+            const cartItemReal = await cartItem
+            if (cartItemReal instanceof Error) {
+                return cartItemReal; //Error
+            }
+            const newAmount = cartItemReal.amount + amount;
+            pool.query(editAmountofItemInCartQuery, [newAmount, cart_id, item_id]);
+            return "ok"
+        } catch (error: any) {
+            return error
+        }
+    },
+    removeItemFromCart: async function (cart_id: number, item_id: number) {
+        try {
+            pool.query(removeItemFromCartQuery, [cart_id, item_id]);
+            return "ok"
+        } catch (error: any) {
+            return error
+        }
+    },
+    clearCart: async function (cart_id: number) {
+        try {
+            pool.query(clearCartQuery, [cart_id]);
+            return "ok"
+        } catch (error: any) {
+            return error
+        }
+    }
 };
 export default database;

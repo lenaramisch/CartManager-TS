@@ -63,26 +63,47 @@ module.exports = {
     },
 
     getCartById: async function (cart_id: number) {
-        const cart = await db.getCartById(cart_id);
+        const cart = await db.getCartMetaById(cart_id);
         if (cart instanceof CartDomain) {
-            cart.cartItems = [];
+            const content = await db.getCartContent(cart_id)
+            if (content instanceof Array) {
+                cart.cartItems = content as ItemInCartDomain[]
+            }
         }
+        
         return cart;
     },
     deleteCartById: async function (cart_id: number) {
         const deleteCartResult = await db.deleteCartById(cart_id);
         return deleteCartResult;
     },
-    getCartContent: async function (cart_id: number) {
-        let cart = await this.getCartById(cart_id);
-        if (cart instanceof CartDomain) {
-            const cartContent = await db.getCartContent(cart_id)
-            if (!(cartContent instanceof Error)) {
-                cart.cartItems = cartContent; 
-                return cart;
-            } else {
-                return cartContent
-            }
+    getAmountofItemInCart: async function (cart_id: number, item_id: number) {
+        const amountOfItemInCart = await db.getAmountOfItemInCart(cart_id, item_id);
+        return amountOfItemInCart;
+    },
+    addItemToCart: async function (cart_id: number, item_id: number, amount: number) { 
+        let cartResult = await this.getCartById(cart_id);
+        if (cartResult instanceof Error) {
+            return new Error('cart does not exist');
         }
+        let itemResult = await this.getItemById(item_id);
+        if (itemResult instanceof Error) {
+            return new Error('item does not exist');
+        }
+        const addItemToCartResult = await db.addItemToCart(cart_id, item_id, amount);
+        if (addItemToCartResult !== "ok") {
+            return new Error('could not add item to cart');
+        }
+        return addItemToCartResult;
+    },
+
+    removeItemFromCart: async function (cart_id: number, item_id: number) {
+        const removeItemFromCartResult = await db.removeItemFromCart(cart_id, item_id);
+        return removeItemFromCartResult;
+    },
+
+    clearCart: async function (cart_id: number) {
+        const clearCartResult = await db.clearCart(cart_id);
+        return clearCartResult;
     }
 };

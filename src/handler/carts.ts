@@ -1,4 +1,4 @@
-import { CartDomain, ItemInCartDomain } from "../domain/models";
+import { CartDomain, ItemDomain, ItemInCartDomain } from "../domain/models";
 import { CartDTO, ItemInCartDTO } from "./models";
 const domain = require('../domain/domain.ts')
 
@@ -56,15 +56,15 @@ module.exports = {
             return { status: 400, message: 'Invalid ID supplied' };
         }
         try {
-            let domainCart = await domain.getCartContent(cartid);
-            console.log(JSON.stringify(domainCart))
-            if (Array.isArray(domainCart.cartItems)) {
+            let domainCart: CartDomain = await domain.getCartById(cartid);
+            console.log("domainCart is: ", JSON.stringify(domainCart))
+            const dtoCart = new CartDTO(domainCart.id, domainCart.userid, domainCart.name);
+            if (domainCart.cartItems instanceof Array) {
                 const dtoCartItems = domainCart.cartItems.map((cartItem: ItemInCartDomain) => new ItemInCartDTO(cartItem.item.id, cartItem.amount));
-                const dtoCart = new CartDTO(domainCart.id, domainCart.userid, domainCart.name, dtoCartItems);
-                return { status: 200, data: dtoCart };
-            } else {
-                throw new Error('Cart Content is not an array');
+                dtoCart.items = dtoCartItems
             }
+            
+            return { status: 200, data: dtoCart };
         } catch (err: any) {
             console.error(err);
             return { status: 500, message: 'Internal Server Error' };

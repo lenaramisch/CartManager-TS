@@ -85,6 +85,7 @@ module.exports = function(app: any) {
     
     app.get('/carts/:cartid', async (req: Request, res: Response) => {
         const cartid = parseInt(req.params.cartid as string)
+        console.log(cartid + " cartid")
         const result = await carts.getCartById(cartid);
         res.status(result.status).send(result.data || result.message);
     });
@@ -93,10 +94,9 @@ module.exports = function(app: any) {
         const cartid = parseInt(req.params.cartid as string)
         const result = await carts.deleteCartById(cartid);
         res.status(result.status).send(result.message);
-    });
-    /*
+    }),
     app.post('/carts/:cartid', async (req: Request, res: Response) => {
-        const { cartid } = req.params;
+        const cartid = parseInt(req.params.cartid as string)
         const { action, itemid, amount } = req.body;
         
         let result;
@@ -115,5 +115,5 @@ module.exports = function(app: any) {
                             return;
                         }
                         res.status(result.status).send(result.message);
-                    }); */
+                    })
 };

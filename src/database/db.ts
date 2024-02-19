@@ -1,6 +1,6 @@
 const { Pool } = require('pg');
-import { ItemDomain, UserDomain } from '../domain/models';
-import { ItemDB, UserDB } from './models';
+import { CartDomain, ItemDomain, UserDomain, ItemInCartDomain } from '../domain/models';
+import { CartDB, ItemDB, ItemInCartDB, UserDB } from './models';
 
 //All the DB Querys:
 //item querys
@@ -15,6 +15,18 @@ const addUserQuery = 'INSERT INTO users(username) VALUES($1)';
 const getUserByIdQuery = 'SELECT * FROM users WHERE id = $1';
 const updateUserByIdQuery = 'UPDATE users SET username = $2 WHERE id = $1';
 const deleteUserByIdQuery = 'DELETE FROM users WHERE id = $1';
+//cart querys
+const getAllCartsQuery = 'SELECT * FROM carts';
+const addCartQuery = 'INSERT INTO carts(name, user_id) VALUES($1, $2)';
+const deleteCartsByUserIdQuery = 'DELETE FROM carts WHERE user_id = $1';
+const getCartByIdQuery = 'SELECT * FROM carts WHERE id = $1';
+const deleteCartByIdQuery = 'DELETE FROM carts WHERE id = $1';
+//cart content (item in cart) querys
+const getCartContentQuery = 'SELECT * FROM item_in_cart WHERE cart_id = $1';
+const getItemInCartQuery = 'SELECT * FROM item_in_cart WHERE cart_id = $1 AND item_id = $2';
+const addItemToCartQuery = 'INSERT INTO item_in_cart(cart_id, item_id, amount) VALUES($1, $2, $3)';
+const removeItemFromCartQuery = 'DELETE FROM item_in_cart WHERE cart_id = $1 AND item_id = $2';
+const clearCartQuery = 'DELETE FROM item_in_cart WHERE cart_id = $1';
 
 interface ItemRow {
     id: number;
@@ -26,6 +38,21 @@ interface ItemRow {
 interface UserRow {
     id: number,
     username: string,
+    created_at: string
+}
+
+interface CartRow {
+    id: number,
+    user_id: number,
+    name: string,
+    created_at: string
+}
+
+interface ItemInCartRow {
+    id: number,
+    cart_id: number,
+    item_id: number,
+    amount: number,
     created_at: string
 }
 
@@ -52,6 +79,13 @@ interface Database {
     getUserById: (user_id: number) => Promise<UserDomain | Error>;
     updateUserById: (user_id: number, username: string) => Promise<string | Error>;
     deleteUserById: (user_id: number) => Promise<string | Error>;
+    //cart endpoints
+    getAllCarts: () => Promise<CartDomain[] | Error>;
+    addCart: (name: string, user_id: number) => Promise<string | Error>;
+    deleteCartsByUserId: (user_id: number) => Promise<string | Error >;
+    getCartById: (cart_id: number) => Promise<CartDomain | Error>;
+    deleteCartById: (cart_id: number) => Promise<string | Error>;
+    getCartContent: (cart_id: number) => Promise<ItemInCartDomain[]| Error>;
 }
 
 const database: Database = {
@@ -62,7 +96,7 @@ const database: Database = {
             // map raw query result to db model classes
             const dbModelItem: ItemDB[] = dbResult.rows.map((row: ItemRow) => new ItemDB(row.id, row.price, row.name, row.created_at));
             // map db model items to domain model items
-            return dbModelItem.map(dbItem => new ItemDomain(dbItem.id, dbItem.price, dbItem.name, dbItem.created_at));
+            return dbModelItem.map(dbItem => new ItemDomain(dbItem.id, dbItem.price, dbItem.name));
         } catch (error: any) {
             return error;
         }
@@ -80,7 +114,7 @@ const database: Database = {
         try {
             const dbResult = await pool.query(getItemByIdQuery, [item_id]);
             const dbModelItem = dbResult.rows.map((row: ItemRow) => new ItemDB(row.id, row.price, row.name, row.created_at))
-            return dbModelItem.map((dbItem: ItemDB) => new ItemDomain(dbItem.id, dbItem.price, dbItem.name, dbItem.created_at))
+            return dbModelItem.map((dbItem: ItemDB) => new ItemDomain(dbItem.id, dbItem.price, dbItem.name))
         } catch (error: any) {
             return error
         }
@@ -144,6 +178,79 @@ const database: Database = {
         } catch (error: any) {
             return error
         }
-    }
+    },
+    getAllCarts: async function () {
+        try{
+            const dbResult = await pool.query(getAllCartsQuery);
+            // map raw QueryResult to db model classes
+            const dbModelCarts = dbResult.rows.map((row: CartRow )=> new CartDB(row.id, row.user_id, row.name, row.created_at))
+            // map db model carts to domain model carts
+            return dbModelCarts.map((dbCart: CartDB) => new CartDomain(dbCart.id, dbCart.user_id, dbCart.name));
+        } catch (error: any) {
+            return error
+        }
+    },
+    addCart: async function (name: string, user_id: number) {
+        try {
+            pool.query(addCartQuery, [name, user_id]);
+            return "ok"
+        } catch (error: any) {
+            return error
+        }
+    },
+    deleteCartsByUserId: async function (user_id: number) {
+        try {
+            pool.query(deleteCartsByUserIdQuery, [user_id]);
+            return "ok"
+        } catch (error: any) {
+            return error
+        }
+    },
+    getCartById: async function (cart_id: number) {
+        try {
+            const dbResult = await pool.query(getCartByIdQuery, [cart_id]);
+            // map raw QueryResult to db model
+            const dbModelCart = dbResult.rows.map((row: CartRow) => new CartDB(row.id, row.user_id, row.name, row.created_at))
+            // map db model to domain model
+            const domainModelCart = dbModelCart.map((dbCart: CartDB) => new CartDomain(dbCart.id, dbCart.user_id, dbCart.name));
+            return domainModelCart[0]
+        } catch (error) {
+            return error
+        }
+    },
+    deleteCartById: async function (cart_id: number) {
+        try {
+            pool.query(deleteCartByIdQuery, [cart_id]);
+            return "ok"
+        } catch (error: any) {
+            return error
+        }
+    },
+    getCartContent: async function (cart_id: number) {
+        try {
+            const dbResult = await pool.query(getCartContentQuery, [cart_id]);
+            if (Object.keys(dbResult).length === 0) {
+                return [];
+            }
+            // map raw QueryResult to db model
+            const dbModelItemInCart: ItemInCartDB[] = dbResult.rows.map((row: ItemInCartRow) => new ItemInCartDB(row.id, row.cart_id, row.item_id, row.amount, row.created_at))
+
+            // Get all items asynchronously
+            const itemPromises = dbModelItemInCart.map(async (dbModelItemInCart) => {
+                const domainItem = await this.getItemById(dbModelItemInCart.item_id);
+                if (domainItem instanceof ItemDomain) {
+                    const amount = dbModelItemInCart.amount;
+                    return new ItemInCartDomain(domainItem, amount);
+                } else {
+                    return domainItem //Error
+                }
+            });
+            // Await all promises and get resolved items
+            const domainModelCartItems = await Promise.all(itemPromises);
+            return domainModelCartItems;
+        } catch (error: any) {
+            return error;
+        }
+    },
 };
 export default database;

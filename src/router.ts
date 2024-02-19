@@ -1,8 +1,8 @@
 import express, {Request, Response} from 'express';
 
-const users = require('./handler/users.ts');
-const items = require('./handler/items.ts');
-const carts = require('./handler/carts.ts');
+const users = require('./handler/users');
+const items = require('./handler/items');
+const carts = require('./handler/carts');
 
 module.exports = function(app: any) {
     //Home route:
@@ -65,56 +65,55 @@ module.exports = function(app: any) {
         const result = await users.deleteUserById(id);
         res.status(result.status).send(result.message);
     })
-};
-/* 
-    // Carts routes
+    //Cart Routes
     app.get('/carts', async (req: Request, res: Response) => {
         const result = await carts.getAllCarts();
         res.status(result.status).send(result.data || result.message);
     });
-
+    
     app.post('/carts', async (req: Request, res: Response) => {
         const { name, userid } = req.body;
         const result = await carts.addCart(name, userid);
         res.status(result.status).send(result.message);
     });
-
+    
     app.delete('/carts/user/:userid', async (req: Request, res: Response) => {
-        const { userid } = req.params;
+        const userid = parseInt(req.params.userid as string)
         const result = await carts.deleteCartsByUserId(userid);
         res.status(result.status).send(result.message);
     });
-
+    
     app.get('/carts/:cartid', async (req: Request, res: Response) => {
-        const { cartid } = req.params;
+        const cartid = parseInt(req.params.cartid as string)
         const result = await carts.getCartById(cartid);
         res.status(result.status).send(result.data || result.message);
     });
-
+    
     app.delete('/carts/:cartid', async (req: Request, res: Response) => {
-        const { cartid } = req.params;
+        const cartid = parseInt(req.params.cartid as string)
         const result = await carts.deleteCartById(cartid);
         res.status(result.status).send(result.message);
     });
-
+    /*
     app.post('/carts/:cartid', async (req: Request, res: Response) => {
         const { cartid } = req.params;
         const { action, itemid, amount } = req.body;
-
+        
         let result;
         switch (action) {
             case "add":
                 result = await carts.addItemToCart(cartid, itemid, amount);
                 break;
-            case "remove":
-                result = await carts.removeItemFromCart(cartid, itemid, amount);
-                break;
-            case "clear":
-                result = await carts.clearCart(cartid);
-                break;
-            default:
-                res.status(400).send('Invalid action supplied');
-                return;
-        }
-        res.status(result.status).send(result.message);
-    }); */
+                case "remove":
+                    result = await carts.removeItemFromCart(cartid, itemid, amount);
+                    break;
+                    case "clear":
+                        result = await carts.clearCart(cartid);
+                        break;
+                        default:
+                            res.status(400).send('Invalid action supplied');
+                            return;
+                        }
+                        res.status(result.status).send(result.message);
+                    }); */
+};

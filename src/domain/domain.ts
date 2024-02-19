@@ -1,4 +1,6 @@
 import db from '../database/db';
+import { CartDB } from '../database/models';
+import { CartDomain, ItemInCartDomain } from './models';
 module.exports = {
     getAllItems: async function () {
         const allItems = await db.getAllItems();
@@ -43,5 +45,43 @@ module.exports = {
     deleteUserById: async function (user_id: number) {
         const deleteUserResult = await db.deleteUserById(user_id);
         return deleteUserResult;
+    },
+    getAllCarts: async function() {
+        const carts = await db.getAllCarts();
+        return carts;
+    },
+
+    addCart: async function(name: string, user_id: number) {
+        const addCartResult = await db.addCart(name, user_id);
+        return addCartResult;
+    },
+
+    deleteCartsByUserId: async function (user_id: number) {
+        const deleteCartsResult = await db.deleteCartsByUserId(user_id);
+        return deleteCartsResult;
+    },
+
+    getCartById: async function (cart_id: number) {
+        const cart = await db.getCartById(cart_id);
+        if (cart instanceof CartDomain) {
+            cart.cartItems = [];
+        }
+        return cart;
+    },
+    deleteCartById: async function (cart_id: number) {
+        const deleteCartResult = await db.deleteCartById(cart_id);
+        return deleteCartResult;
+    },
+    getCartContent: async function (cart_id: number) {
+        let cart = await this.getCartById(cart_id);
+        if (cart instanceof CartDomain) {
+            const cartContent = await db.getCartContent(cart_id)
+            if (!(cartContent instanceof Error)) {
+                cart.cartItems = cartContent; 
+                return cart;
+            } else {
+                return cartContent
+            }
+        }
     }
 };

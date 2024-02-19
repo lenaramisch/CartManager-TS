@@ -11,7 +11,7 @@ get:
           schema:
             type: array
             items: 
-              $ref: '../../schemas/_index.yml#/UserResponse'
+              $ref: '../../schemas/_index.yml#/User'
     '404':
       description: No users found
  

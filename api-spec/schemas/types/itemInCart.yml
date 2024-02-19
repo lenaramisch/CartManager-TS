@@ -1,0 +1,13 @@
+type: object
+properties:
+  item_id:
+    type: integer
+    format: int64
+    example: 3
+  amount:
+    type: integer
+    format: int64
+    example: 4
+required:
+  - item_id
+  - amount

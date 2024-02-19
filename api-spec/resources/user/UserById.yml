@@ -18,7 +18,7 @@ get:
         application/json:
           schema:
             items: 
-              $ref: '../../schemas/_index.yml#/UserResponse'
+              $ref: '../../schemas/_index.yml#/User'
     '400':
       description: Invalid ID supplied
     '404':

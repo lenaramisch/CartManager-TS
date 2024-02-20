@@ -1,6 +1,6 @@
 import { CartDomain, ItemDomain, ItemInCartDomain } from "../domain/models";
 import { CartDTO, ItemInCartDTO } from "./models";
-const domain = require('../domain/domain.ts')
+import domain from "../domain/domain";
 
 module.exports = {
     getAllCarts: async function() {
@@ -78,10 +78,6 @@ module.exports = {
             return { status: 400, message: 'Invalid ID supplied' };
         }
         try {
-            let cartResult = await domain.getCartById(cartid);
-            if (Object.keys(cartResult).length === 0) {
-                return { status: 404, message: `Can not find cart (cart ID: ${cartid})`};
-            }
             await domain.deleteCartById(cartid);
             return { status: 200, message: `Deleted cart (cart ID: ${cartid})` };
         } catch (err: any) {
@@ -95,6 +91,11 @@ module.exports = {
             return { status: 400, message: 'Invalid cart or item ID supplied' };
         }
         try {
+            // Check if cart exists
+            let domainCartResult = await domain.getCartById(cartId);
+            if (Object.keys(domainCartResult).length === 0) {
+                return { status: 404, message: `Can not find cart (cart ID: ${cartId})`};
+            }
             const addResult = await domain.addItemToCart(cartId, itemId, amount);
             if (addResult instanceof Error) {
                 return { status: 400, message: addResult.message };

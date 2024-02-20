@@ -2,7 +2,29 @@ import db from '../database/db';
 import { CartDB } from '../database/models';
 import { CartDomain, ItemInCartDomain } from './models';
 
-module.exports = {
+interface domain {
+    getAllItems: () => Promise<any>,
+    addItem: (name: string, price: number) => Promise<any>,
+    getItemById: (item_id: number) => Promise<any>,
+    updateItemById: (item_id: number, name: string, price: number) => Promise<any>,
+    deleteItemById: (item_id: number) => Promise<any>,
+    getAllUsers: () => Promise<any>,
+    addUser: (username: string) => Promise<any>,
+    getUserById: (user_id: number) => Promise<any>,
+    updateUserById: (user_id: number, username: string) => Promise<any>,
+    deleteUserById: (user_id: number) => Promise<any>,
+    getAllCarts: () => Promise<any>,
+    addCart: (name: string, user_id: number) => Promise<any>,
+    deleteCartsByUserId: (user_id: number) => Promise<any>,
+    getCartById: (cart_id: number) => Promise<any>,
+    deleteCartById: (cart_id: number) => Promise<any>,
+    getAmountofItemInCart: (cart_id: number, item_id: number) => Promise<any>,
+    addItemToCart: (cart_id: number, item_id: number, amount: number) => Promise<any>,
+    removeItemFromCart: (cart_id: number, item_id: number, amount: number) => Promise<any>,
+    clearCart: (cart_id: number) => Promise<any>
+}
+
+const domain :domain = {
     getAllItems: async function () {
         const allItems = await db.getAllItems();
         return allItems;
@@ -123,3 +145,5 @@ module.exports = {
         return clearCartResult;
     }
 };
+
+export default domain;

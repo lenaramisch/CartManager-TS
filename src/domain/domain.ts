@@ -91,22 +91,31 @@ module.exports = {
             return new Error('item does not exist');
         }
         const addItemToCartResult = await db.addItemToCart(cart_id, item_id, amount);
-        if (addItemToCartResult !== "ok") {
-            return new Error('could not add item to cart');
+        if (addItemToCartResult instanceof Error) {
+            return new Error('internal server error');
         }
-        return addItemToCartResult;
     },
 
     removeItemFromCart: async function (cart_id: number, item_id: number, amount: number) {
+        let cartResult = await this.getCartById(cart_id);
+        if (cartResult instanceof Error) {
+            return new Error('cart does not exist');
+        }
+        let itemResult = await this.getItemById(item_id);
+        if (itemResult instanceof Error) {
+            return new Error('item does not exist');
+        }
+        
         // Check if the item is in the cart
         const amountOfItemInCart = await db.getAmountOfItemInCart(cart_id, item_id);
         if (amountOfItemInCart instanceof Error) {
-            return amountOfItemInCart;
+            return new Error('internal server error');
         }
         // update the amount of the item in the cart
-        const removeItemFromCartResult = await db.updateAmountofItemInCart(cart_id, item_id, amountOfItemInCart - amount);
-
-        return removeItemFromCartResult;
+        const updateResult = await db.updateAmountofItemInCart(cart_id, item_id, amountOfItemInCart - amount);
+        if (updateResult instanceof Error) {
+            return new Error('internal server error');
+        }
     },
 
     clearCart: async function (cart_id: number) {

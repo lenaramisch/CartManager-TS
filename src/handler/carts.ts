@@ -95,7 +95,10 @@ module.exports = {
             return { status: 400, message: 'Invalid cart or item ID supplied' };
         }
         try {
-            await domain.addItemToCart(cartId, itemId, amount);
+            const addResult = await domain.addItemToCart(cartId, itemId, amount);
+            if (addResult instanceof Error) {
+                return { status: 400, message: addResult.message };
+            }
             return { status: 200, message: `Added ${amount} of item into cart (item ID: ${itemId}, cart ID: ${cartId})` };
         } catch (err: any) {
             console.error(err);
@@ -108,7 +111,10 @@ module.exports = {
             return { status: 400, message: 'Invalid cart, itemID or amount supplied' };
         }
         try {       
-            await domain.removeItemFromCart(cartId, itemId, amount);
+            const removeResult = await domain.removeItemFromCart(cartId, itemId, amount);
+            if (removeResult instanceof Error) {
+                return { status: 404, message: removeResult.message };
+            }
             return { status: 200, message: `Removed item from cart (item ID: ${itemId}, cart ID: ${cartId})` };
         } catch (err: any) {
             console.error(err);

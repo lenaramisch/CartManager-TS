@@ -281,7 +281,10 @@ const database: Database = {
             if (amount <= 0) {
                 return this.removeItemFromCart(cart_id, item_id);
             }
-            pool.query(editAmountofItemInCartQuery, [amount, cart_id, item_id]);
+            const updateResult = await pool.query(editAmountofItemInCartQuery, [amount, cart_id, item_id]);
+            if (updateResult instanceof Error) {
+                return updateResult;
+            }
             return "ok"
         }
         catch (error: any) {
@@ -298,13 +301,19 @@ const database: Database = {
 
             if (alreadyInCartAmount === 0) {
                 // if the item is not in the cart, add it
-                pool.query(addItemToCartQuery, [cart_id, item_id, amount]);
+                const addResult = await pool.query(addItemToCartQuery, [cart_id, item_id, amount]);
+                if (addResult instanceof Error) {
+                    return addResult;
+                }
                 return "ok"
             }
             
             // if the item is already in the cart, update the amount
             const newAmount :number = alreadyInCartAmount + amount;
-            await this.updateAmountofItemInCart(cart_id, item_id, newAmount);
+            const updateResult = await this.updateAmountofItemInCart(cart_id, item_id, newAmount);
+            if (updateResult instanceof Error) {
+                return updateResult;
+            }
         } catch (error: any) {
             return error
         }

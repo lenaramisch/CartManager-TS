@@ -85,7 +85,6 @@ module.exports = function(app: any) {
     
     app.get('/carts/:cartid', async (req: Request, res: Response) => {
         const cartid = parseInt(req.params.cartid as string)
-        console.log(cartid + " cartid")
         const result = await carts.getCartById(cartid);
         res.status(result.status).send(result.data || result.message);
     });
@@ -104,16 +103,16 @@ module.exports = function(app: any) {
             case "add":
                 result = await carts.addItemToCart(cartid, itemid, amount);
                 break;
-                case "remove":
-                    result = await carts.removeItemFromCart(cartid, itemid, amount);
-                    break;
-                    case "clear":
-                        result = await carts.clearCart(cartid);
-                        break;
-                        default:
-                            res.status(400).send('Invalid action supplied');
-                            return;
-                        }
-                        res.status(result.status).send(result.message);
-                    })
+            case "remove":
+                result = await carts.removeItemFromCart(cartid, itemid, amount);
+                break;
+            case "clear":
+                result = await carts.clearCart(cartid);
+                break;
+            default:
+                res.status(400).send('Invalid action supplied');
+                return;
+        }
+        res.status(result.status).send(result.message);
+    })
 };

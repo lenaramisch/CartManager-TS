@@ -32,11 +32,10 @@ module.exports = {
         }
         try {
             const itemResult = await domain.getItemById(itemId);
-            if (Object.keys(itemResult).length === 0) {
-                return { status: 404, message: `Cannot find item (item ID: ${itemId})` };
+            if (itemResult instanceof ItemDomain) {
+                return { status: 200, data: new ItemDTO(itemResult.id, itemResult.name, itemResult.price)};
             }
-            let DtoItemResult = itemResult.map((item: ItemDomain )=> new ItemDTO(item.id, item.name, item.price));
-            return { status: 200, data: DtoItemResult };
+            return { status: 404, message: `Cannot find item (item ID: ${itemId})` };
         } catch (err: any) {
             console.error(err);
             return { status: 500, message: 'Internal Server Error' };

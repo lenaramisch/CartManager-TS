@@ -97,8 +97,15 @@ module.exports = {
         return addItemToCartResult;
     },
 
-    removeItemFromCart: async function (cart_id: number, item_id: number) {
-        const removeItemFromCartResult = await db.removeItemFromCart(cart_id, item_id);
+    removeItemFromCart: async function (cart_id: number, item_id: number, amount: number) {
+        // Check if the item is in the cart
+        const amountOfItemInCart = await db.getAmountOfItemInCart(cart_id, item_id);
+        if (amountOfItemInCart instanceof Error) {
+            return amountOfItemInCart;
+        }
+        // update the amount of the item in the cart
+        const removeItemFromCartResult = await db.updateAmountofItemInCart(cart_id, item_id, amountOfItemInCart - amount);
+
         return removeItemFromCartResult;
     },
 

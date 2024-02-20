@@ -57,13 +57,11 @@ module.exports = {
         }
         try {
             let domainCart: CartDomain = await domain.getCartById(cartid);
-            console.log("domainCart is: ", JSON.stringify(domainCart))
             if (domainCart === undefined || Object.keys(domainCart).length === 0) {
                 return { status: 404, message: `Can not find cart (cart ID: ${cartid})`};
             }
             const dtoCart = new CartDTO(domainCart.id, domainCart.userid, domainCart.name);
             if (domainCart.cartItems instanceof Array) {
-                console.log("domainCart.cartItems is: ", JSON.stringify(domainCart.cartItems))
                 const dtoCartItems = domainCart.cartItems.map((cartItem: ItemInCartDomain) => new ItemInCartDTO(cartItem.item.id, cartItem.amount));
                 dtoCart.items = dtoCartItems
             }
@@ -96,10 +94,6 @@ module.exports = {
         if (isNaN(cartId) || isNaN(itemId)) {
             return { status: 400, message: 'Invalid cart or item ID supplied' };
         }
-        let cartResult = await domain.getCartById(cartId);
-            if (Object.keys(cartResult).length === 0) {
-                return { status: 404, message: `Can not find cart (cart ID: ${cartId})`};
-            }
         try {
             await domain.addItemToCart(cartId, itemId, amount);
             return { status: 200, message: `Added ${amount} of item into cart (item ID: ${itemId}, cart ID: ${cartId})` };
@@ -109,20 +103,12 @@ module.exports = {
         }
     },
 
-    removeItemFromCart: async function (cartId: number, itemId: number) {
-        if (isNaN(cartId) || isNaN(itemId)) {
-            return { status: 400, message: 'Invalid cart or item ID supplied' };
+    removeItemFromCart: async function (cartId: number, itemId: number, amount: number) {
+        if (isNaN(cartId) || isNaN(itemId) || isNaN(amount)) {
+            return { status: 400, message: 'Invalid cart, itemID or amount supplied' };
         }
-        try {
-            let cartResult = await domain.getCartById(cartId);
-            if (Object.keys(cartResult).length === 0) {
-                return { status: 404, message: `Can not find cart (cart ID: ${cartId})`};
-            }
-            const domainContentResult = await domain.getItemInCart(cartId, itemId);
-            if (Object.keys(domainContentResult).length === 0) {
-                return { status: 404, message: `No entry for item in cart found (item ID: ${itemId}, cart ID: ${cartId})`};
-            }
-            await domain.removeItemFromCart(cartId, itemId);
+        try {       
+            await domain.removeItemFromCart(cartId, itemId, amount);
             return { status: 200, message: `Removed item from cart (item ID: ${itemId}, cart ID: ${cartId})` };
         } catch (err: any) {
             console.error(err);

@@ -3,6 +3,7 @@ import { CartDB } from '../database/models';
 import { CartDomain, ItemInCartDomain } from './models';
 
 interface domain {
+    // TODO add types
     getAllItems: () => Promise<any>,
     addItem: (name: string, price: number) => Promise<any>,
     getItemById: (item_id: number) => Promise<any>,

@@ -2,7 +2,30 @@ import db from '../database/db';
 import { CartDB } from '../database/models';
 import { CartDomain, ItemInCartDomain } from './models';
 
-module.exports = {
+interface domain {
+    // TODO add types
+    getAllItems: () => Promise<any>,
+    addItem: (name: string, price: number) => Promise<any>,
+    getItemById: (item_id: number) => Promise<any>,
+    updateItemById: (item_id: number, name: string, price: number) => Promise<any>,
+    deleteItemById: (item_id: number) => Promise<any>,
+    getAllUsers: () => Promise<any>,
+    addUser: (username: string) => Promise<any>,
+    getUserById: (user_id: number) => Promise<any>,
+    updateUserById: (user_id: number, username: string) => Promise<any>,
+    deleteUserById: (user_id: number) => Promise<any>,
+    getAllCarts: () => Promise<any>,
+    addCart: (name: string, user_id: number) => Promise<any>,
+    deleteCartsByUserId: (user_id: number) => Promise<any>,
+    getCartById: (cart_id: number) => Promise<any>,
+    deleteCartById: (cart_id: number) => Promise<any>,
+    getAmountofItemInCart: (cart_id: number, item_id: number) => Promise<any>,
+    addItemToCart: (cart_id: number, item_id: number, amount: number) => Promise<any>,
+    removeItemFromCart: (cart_id: number, item_id: number, amount: number) => Promise<any>,
+    clearCart: (cart_id: number) => Promise<any>
+}
+
+const domain :domain = {
     getAllItems: async function () {
         const allItems = await db.getAllItems();
         return allItems;
@@ -91,15 +114,31 @@ module.exports = {
             return new Error('item does not exist');
         }
         const addItemToCartResult = await db.addItemToCart(cart_id, item_id, amount);
-        if (addItemToCartResult !== "ok") {
-            return new Error('could not add item to cart');
+        if (addItemToCartResult instanceof Error) {
+            return new Error('internal server error');
         }
-        return addItemToCartResult;
     },
 
-    removeItemFromCart: async function (cart_id: number, item_id: number) {
-        const removeItemFromCartResult = await db.removeItemFromCart(cart_id, item_id);
-        return removeItemFromCartResult;
+    removeItemFromCart: async function (cart_id: number, item_id: number, amount: number) {
+        let cartResult = await this.getCartById(cart_id);
+        if (cartResult instanceof Error) {
+            return new Error('cart does not exist');
+        }
+        let itemResult = await this.getItemById(item_id);
+        if (itemResult instanceof Error) {
+            return new Error('item does not exist');
+        }
+        
+        // Check if the item is in the cart
+        const amountOfItemInCart = await db.getAmountOfItemInCart(cart_id, item_id);
+        if (amountOfItemInCart instanceof Error) {
+            return new Error('internal server error');
+        }
+        // update the amount of the item in the cart
+        const updateResult = await db.updateAmountofItemInCart(cart_id, item_id, amountOfItemInCart - amount);
+        if (updateResult instanceof Error) {
+            return new Error('internal server error');
+        }
     },
 
     clearCart: async function (cart_id: number) {
@@ -107,3 +146,5 @@ module.exports = {
         return clearCartResult;
     }
 };
+
+export default domain;

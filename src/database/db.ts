@@ -88,7 +88,8 @@ interface Database {
     deleteCartById: (cart_id: number) => Promise<string | Error>;
     getCartContent: (cart_id: number) => Promise<ItemInCartDomain[]| Error>;
     /* ------ */
-    getAmountOfItemInCart: (cart_id: number, item_id: number) => Promise<ItemInCartDomain| Error>;
+    getAmountOfItemInCart: (cart_id: number, item_id: number) => Promise<number| Error>;
+    updateAmountofItemInCart: (cart_id: number, item_id: number, amount: number) => Promise<string | Error>;
     addItemToCart: (cart_id: number, item_id: number, amount: number) => Promise<string | Error>;
     removeItemFromCart: (cart_id: number, item_id: number) => Promise<string | Error>;
     clearCart: (cart_id: number) => Promise<string | Error>;
@@ -261,41 +262,58 @@ const database: Database = {
             return error;
         }
     },
-    getAmountOfItemInCart: async function (cart_id: number, item_id: number) {
+    getAmountOfItemInCart: async function (cart_id: number, item_id: number): Promise<number | Error> {
         try {
-            const dbResult = pool.query(getItemInCartQuery, [cart_id, item_id]);
+            const dbResult = await pool.query(getItemInCartQuery, [cart_id, item_id]);
+            // if the item is not in the cart, return 0
+            if (dbResult.rows.length === 0) {
+                return 0;
+            }
             const dbModelItemInCart = dbResult.rows.map((row: ItemInCartRow )=> new ItemInCartDB(row.id, row.cart_id, row.item_id, row.amount, row.created_at));
-            
-            const itemPromises = dbModelItemInCart.map(async (dbModelItemInCart: ItemInCartDB) => {
-                const domainItem = await this.getItemById(dbModelItemInCart.item_id);
-                const amount = dbModelItemInCart.amount;
-                if (domainItem instanceof ItemDomain) {
-                    return new ItemInCartDomain(domainItem, amount);
-                } else {
-                    return domainItem; //Error
-                }
-            });
-            const domainModelCartItems = await Promise.all(itemPromises);
-            return domainModelCartItems
+            return dbModelItemInCart[0].amount;
         } catch (error: any) {
-            return error
+            return error;
+        }
+    },
+    updateAmountofItemInCart: async function (cart_id: number, item_id: number, amount: number) {
+        try {
+            // if the amount is 0 or below, remove the item from the cart
+            if (amount <= 0) {
+                return this.removeItemFromCart(cart_id, item_id);
+            }
+            const updateResult = await pool.query(editAmountofItemInCartQuery, [amount, cart_id, item_id]);
+            if (updateResult instanceof Error) {
+                return updateResult;
+            }
+            return "ok"
+        }
+        catch (error: any) {
+            return error;
         }
     },
     addItemToCart: async function (cart_id: number, item_id: number, amount: number) {
         try {
-            const cartItem = this.getAmountOfItemInCart(cart_id, item_id);
-            if (Object.keys(cartItem).length === 0) {
-                pool.query(addItemToCartQuery, [cart_id, item_id, amount]);
+            // Get the amount of items in the cart and add the new amount to it
+            const alreadyInCartAmount = await this.getAmountOfItemInCart(cart_id, item_id);
+            if (alreadyInCartAmount instanceof Error) {
+                return alreadyInCartAmount;
+            }
+
+            if (alreadyInCartAmount === 0) {
+                // if the item is not in the cart, add it
+                const addResult = await pool.query(addItemToCartQuery, [cart_id, item_id, amount]);
+                if (addResult instanceof Error) {
+                    return addResult;
+                }
                 return "ok"
             }
             
-            const cartItemReal = await cartItem
-            if (cartItemReal instanceof Error) {
-                return cartItemReal; //Error
+            // if the item is already in the cart, update the amount
+            const newAmount :number = alreadyInCartAmount + amount;
+            const updateResult = await this.updateAmountofItemInCart(cart_id, item_id, newAmount);
+            if (updateResult instanceof Error) {
+                return updateResult;
             }
-            const newAmount = cartItemReal.amount + amount;
-            pool.query(editAmountofItemInCartQuery, [newAmount, cart_id, item_id]);
-            return "ok"
         } catch (error: any) {
             return error
         }

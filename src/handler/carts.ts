@@ -1,6 +1,6 @@
 import { CartDomain, ItemDomain, ItemInCartDomain } from "../domain/models";
 import { CartDTO, ItemInCartDTO } from "./models";
-const domain = require('../domain/domain.ts')
+import domain from "../domain/domain";
 
 module.exports = {
     getAllCarts: async function() {
@@ -57,13 +57,11 @@ module.exports = {
         }
         try {
             let domainCart: CartDomain = await domain.getCartById(cartid);
-            console.log("domainCart is: ", JSON.stringify(domainCart))
             if (domainCart === undefined || Object.keys(domainCart).length === 0) {
                 return { status: 404, message: `Can not find cart (cart ID: ${cartid})`};
             }
             const dtoCart = new CartDTO(domainCart.id, domainCart.userid, domainCart.name);
             if (domainCart.cartItems instanceof Array) {
-                console.log("domainCart.cartItems is: ", JSON.stringify(domainCart.cartItems))
                 const dtoCartItems = domainCart.cartItems.map((cartItem: ItemInCartDomain) => new ItemInCartDTO(cartItem.item.id, cartItem.amount));
                 dtoCart.items = dtoCartItems
             }
@@ -80,10 +78,6 @@ module.exports = {
             return { status: 400, message: 'Invalid ID supplied' };
         }
         try {
-            let cartResult = await domain.getCartById(cartid);
-            if (Object.keys(cartResult).length === 0) {
-                return { status: 404, message: `Can not find cart (cart ID: ${cartid})`};
-            }
             await domain.deleteCartById(cartid);
             return { status: 200, message: `Deleted cart (cart ID: ${cartid})` };
         } catch (err: any) {
@@ -96,12 +90,16 @@ module.exports = {
         if (isNaN(cartId) || isNaN(itemId)) {
             return { status: 400, message: 'Invalid cart or item ID supplied' };
         }
-        let cartResult = await domain.getCartById(cartId);
-            if (Object.keys(cartResult).length === 0) {
+        try {
+            // Check if cart exists
+            let domainCartResult = await domain.getCartById(cartId);
+            if (Object.keys(domainCartResult).length === 0) {
                 return { status: 404, message: `Can not find cart (cart ID: ${cartId})`};
             }
-        try {
-            await domain.addItemToCart(cartId, itemId, amount);
+            const addResult = await domain.addItemToCart(cartId, itemId, amount);
+            if (addResult instanceof Error) {
+                return { status: 400, message: addResult.message };
+            }
             return { status: 200, message: `Added ${amount} of item into cart (item ID: ${itemId}, cart ID: ${cartId})` };
         } catch (err: any) {
             console.error(err);
@@ -109,20 +107,15 @@ module.exports = {
         }
     },
 
-    removeItemFromCart: async function (cartId: number, itemId: number) {
-        if (isNaN(cartId) || isNaN(itemId)) {
-            return { status: 400, message: 'Invalid cart or item ID supplied' };
+    removeItemFromCart: async function (cartId: number, itemId: number, amount: number) {
+        if (isNaN(cartId) || isNaN(itemId) || isNaN(amount)) {
+            return { status: 400, message: 'Invalid cart, itemID or amount supplied' };
         }
-        try {
-            let cartResult = await domain.getCartById(cartId);
-            if (Object.keys(cartResult).length === 0) {
-                return { status: 404, message: `Can not find cart (cart ID: ${cartId})`};
+        try {       
+            const removeResult = await domain.removeItemFromCart(cartId, itemId, amount);
+            if (removeResult instanceof Error) {
+                return { status: 404, message: removeResult.message };
             }
-            const domainContentResult = await domain.getItemInCart(cartId, itemId);
-            if (Object.keys(domainContentResult).length === 0) {
-                return { status: 404, message: `No entry for item in cart found (item ID: ${itemId}, cart ID: ${cartId})`};
-            }
-            await domain.removeItemFromCart(cartId, itemId);
             return { status: 200, message: `Removed item from cart (item ID: ${itemId}, cart ID: ${cartId})` };
         } catch (err: any) {
             console.error(err);

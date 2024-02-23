@@ -1,4 +1,5 @@
 import express, {Request, Response} from 'express';
+import { ResourceLimits } from 'worker_threads';
 
 const users = require('./handler/users');
 const items = require('./handler/items');
@@ -114,5 +115,10 @@ module.exports = function(app: any) {
                 return;
         }
         res.status(result.status).send(result.message);
+    }),
+    app.get('/carts/user/:userid', async (req: Request, res: Response) => {
+        const userid = parseInt(req.params.userid as string)
+        const result = await carts.getAllCartsByUserId(userid);
+        res.status(result.status).send(result.data || result.message);
     })
 };

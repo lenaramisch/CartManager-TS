@@ -1,4 +1,4 @@
-import { CartDomain, ItemDomain, ItemInCartDomain } from "../domain/models";
+import { CartDomain, ItemInCartDomain } from "../domain/models";
 import { CartDTO, ItemInCartDTO } from "./models";
 import domain from "../domain/domain";
 
@@ -70,6 +70,26 @@ module.exports = {
         } catch (err: any) {
             console.error(err);
             return { status: 500, message: 'Internal Server Error' };
+        }
+    },
+
+    getAllCartsByUserId: async function (user_id: number) {
+        if (isNaN(user_id)) {
+            return { status: 400, message: 'Invalid ID supplied' };
+        }
+        try {
+            let userResult = await domain.getUserById(user_id);
+            if (Object.keys(userResult).length === 0) {
+                return { status: 404, message: `Can not find user (user ID: ${user_id})`};
+            }
+            let domainCarts = await domain.getAllCartsByUserId(user_id);
+            if (domainCarts instanceof Error) {
+                return domainCarts;
+            }
+            const dtoCarts = domainCarts.map((cart: CartDomain) => new CartDTO(cart.id, cart.userid, cart.name))
+            return { status: 200, data: dtoCarts };
+        } catch (err: any) {
+            return { status: 500, message: 'Internal Server Error'}
         }
     },
 

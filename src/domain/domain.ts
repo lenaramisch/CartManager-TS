@@ -24,7 +24,8 @@ interface domain {
     addItemToCart: (cart_id: number, item_id: number, amount: number) => Promise<any>,
     removeItemFromCart: (cart_id: number, item_id: number, amount: number) => Promise<any>,
     clearCart: (cart_id: number) => Promise<any>
-    getAllCartsByUserId: (user_id: number) => Promise<any[] | Error>
+    getAllCartIdsByUserId: (user_id: number) => Promise<any[] | Error>
+    getAllCartsByUserId: (user_id: number) => Promise<CartDomain[] | Error>
 }
 
 const domain :domain = {
@@ -83,7 +84,7 @@ const domain :domain = {
     },
 
     deleteCartsByUserId: async function (user_id: number) {
-        let cartIds = await this.getAllCartsByUserId(user_id);
+        let cartIds = await this.getAllCartIdsByUserId(user_id);
         if (cartIds instanceof Array) {
             for (let index = 0; index < cartIds.length; index++) {
                 const cartId = cartIds[index];
@@ -94,7 +95,7 @@ const domain :domain = {
         return deleteCartsResult;
     },
 
-    getAllCartsByUserId: async function (user_id: number) {
+    getAllCartIdsByUserId: async function (user_id: number) {
         const carts = await db.getAllCartsByUserId(user_id);
         if (carts instanceof Error) {
             return carts;
@@ -165,6 +166,14 @@ const domain :domain = {
     clearCart: async function (cart_id: number) {
         const clearCartResult = await db.clearCart(cart_id);
         return clearCartResult;
+    },
+
+    getAllCartsByUserId: async function (user_id: number) {
+        const carts = await db.getAllCartsByUserId(user_id);
+        if (carts instanceof Error) {
+            return carts;
+        }
+        return carts;
     }
 };
 

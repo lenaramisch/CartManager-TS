@@ -1,7 +1,5 @@
-import { isArrayBuffer } from 'util/types';
 import db from '../database/db';
 import { CartDomain, ItemInCartDomain } from './models';
-import { clear } from 'console';
 
 interface domain {
     // TODO add types

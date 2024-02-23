@@ -1,5 +1,4 @@
 import express, {Request, Response} from 'express';
-import { ResourceLimits } from 'worker_threads';
 
 const users = require('./handler/users');
 const items = require('./handler/items');

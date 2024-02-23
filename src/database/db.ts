@@ -28,6 +28,7 @@ const addItemToCartQuery = 'INSERT INTO item_in_cart(cart_id, item_id, amount) V
 const removeItemFromCartQuery = 'DELETE FROM item_in_cart WHERE cart_id = $1 AND item_id = $2';
 const clearCartQuery = 'DELETE FROM item_in_cart WHERE cart_id = $1';
 const editAmountofItemInCartQuery = 'UPDATE item_in_cart SET amount = $1 WHERE cart_id = $2 AND item_id = $3';
+const getAllCartsByUserIdQuery = 'SELECT * FROM carts WHERE user_id = $1';
 
 interface ItemRow {
     id: number;
@@ -93,6 +94,7 @@ interface Database {
     addItemToCart: (cart_id: number, item_id: number, amount: number) => Promise<string | Error>;
     removeItemFromCart: (cart_id: number, item_id: number) => Promise<string | Error>;
     clearCart: (cart_id: number) => Promise<string | Error>;
+    getAllCartsByUserId: (user_id: number) => Promise<CartDomain[] | Error>;
 }
 
 const database: Database = {
@@ -198,6 +200,15 @@ const database: Database = {
             return error
         }
     },
+    getAllCartsByUserId: async function (user_id: number) {
+        try {
+            const dbResult = await pool.query(getAllCartsByUserIdQuery, [user_id]);
+            const dbModelCarts = dbResult.rows.map((row: CartRow )=> new CartDB(row.id, row.user_id, row.name, row.created_at))
+            return dbModelCarts.map((dbCart: CartDB) => new CartDomain(dbCart.id, dbCart.user_id, dbCart.name));
+        } catch (error: any) {
+            return error
+        }
+    },
     addCart: async function (name: string, user_id: number) {
         try {
             pool.query(addCartQuery, [name, user_id]);
@@ -208,6 +219,7 @@ const database: Database = {
     },
     deleteCartsByUserId: async function (user_id: number) {
         try {
+            console.log("Deleting all carts for user: ", user_id);
             pool.query(deleteCartsByUserIdQuery, [user_id]);
             return "ok"
         } catch (error: any) {

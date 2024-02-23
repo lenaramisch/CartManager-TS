@@ -1,6 +1,7 @@
+import { isArrayBuffer } from 'util/types';
 import db from '../database/db';
-import { CartDB } from '../database/models';
 import { CartDomain, ItemInCartDomain } from './models';
+import { clear } from 'console';
 
 interface domain {
     // TODO add types
@@ -23,6 +24,7 @@ interface domain {
     addItemToCart: (cart_id: number, item_id: number, amount: number) => Promise<any>,
     removeItemFromCart: (cart_id: number, item_id: number, amount: number) => Promise<any>,
     clearCart: (cart_id: number) => Promise<any>
+    getAllCartsByUserId: (user_id: number) => Promise<any[] | Error>
 }
 
 const domain :domain = {
@@ -81,8 +83,29 @@ const domain :domain = {
     },
 
     deleteCartsByUserId: async function (user_id: number) {
+        let cartIds = await this.getAllCartsByUserId(user_id);
+        console.log("cartIds: ", JSON.stringify(cartIds))
+        if (cartIds instanceof Array) {
+            for (let index = 0; index < cartIds.length; index++) {
+                const cartId = cartIds[index];
+                const clearCartResult = await this.clearCart(cartId)
+                console.log("Clear Cart Result: ", JSON.stringify(clearCartResult))
+            }
+        }
         const deleteCartsResult = await db.deleteCartsByUserId(user_id);
         return deleteCartsResult;
+    },
+
+    getAllCartsByUserId: async function (user_id: number) {
+        const carts = await db.getAllCartsByUserId(user_id);
+        if (carts instanceof Error) {
+            return carts;
+        }
+        let cart_ids: number[] = [];
+        carts.forEach(cart => {
+            cart_ids.push(cart.id)
+        });
+        return cart_ids;
     },
 
     getCartById: async function (cart_id: number) {

@@ -1,4 +1,4 @@
-const domain = require('../domain/domain.ts');
+import domain from "../domain/domain";
 import { UserDTO} from './models';
 import { UserDomain } from '../domain/models';
 

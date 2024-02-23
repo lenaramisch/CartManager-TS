@@ -84,12 +84,10 @@ const domain :domain = {
 
     deleteCartsByUserId: async function (user_id: number) {
         let cartIds = await this.getAllCartsByUserId(user_id);
-        console.log("cartIds: ", JSON.stringify(cartIds))
         if (cartIds instanceof Array) {
             for (let index = 0; index < cartIds.length; index++) {
                 const cartId = cartIds[index];
                 const clearCartResult = await this.clearCart(cartId)
-                console.log("Clear Cart Result: ", JSON.stringify(clearCartResult))
             }
         }
         const deleteCartsResult = await db.deleteCartsByUserId(user_id);

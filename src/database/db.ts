@@ -219,7 +219,6 @@ const database: Database = {
     },
     deleteCartsByUserId: async function (user_id: number) {
         try {
-            console.log("Deleting all carts for user: ", user_id);
             pool.query(deleteCartsByUserIdQuery, [user_id]);
             return "ok"
         } catch (error: any) {

@@ -9,6 +9,9 @@ module.exports = {
             if (Object.keys(domainCarts).length === 0) {
                 return { status: 404, message: 'No carts found'};
             }
+            if (domainCarts instanceof Error) {
+                return { status: 500, message: "Internal Server Error"}
+            }
             const dtoCarts = domainCarts.map((cart: CartDomain) => new CartDTO(cart.id, cart.userid, cart.name))
             return { status: 200, data: dtoCarts };
         } catch (err: any) {
@@ -56,9 +59,12 @@ module.exports = {
             return { status: 400, message: 'Invalid ID supplied' };
         }
         try {
-            let domainCart: CartDomain = await domain.getCartById(cartid);
+            let domainCart = await domain.getCartById(cartid);
             if (domainCart === undefined || Object.keys(domainCart).length === 0) {
                 return { status: 404, message: `Can not find cart (cart ID: ${cartid})`};
+            }
+            if (domainCart instanceof Error) {
+                return { status: 500, message: 'Internal Server Error'}
             }
             const dtoCart = new CartDTO(domainCart.id, domainCart.userid, domainCart.name);
             if (domainCart.cartItems instanceof Array) {

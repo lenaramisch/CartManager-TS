@@ -1,28 +1,28 @@
 import db from '../database/db';
-import { CartDomain, ItemInCartDomain } from './models';
+import { CartDomain, ItemInCartDomain, ItemDomain, UserDomain } from './models';
 
 interface domain {
     // TODO add types
-    getAllItems: () => Promise<any>,
-    addItem: (name: string, price: number) => Promise<any>,
-    getItemById: (item_id: number) => Promise<any>,
-    updateItemById: (item_id: number, name: string, price: number) => Promise<any>,
-    deleteItemById: (item_id: number) => Promise<any>,
-    getAllUsers: () => Promise<any>,
-    addUser: (username: string) => Promise<any>,
-    getUserById: (user_id: number) => Promise<any>,
-    updateUserById: (user_id: number, username: string) => Promise<any>,
-    deleteUserById: (user_id: number) => Promise<any>,
-    getAllCarts: () => Promise<any>,
-    addCart: (name: string, user_id: number) => Promise<any>,
-    deleteCartsByUserId: (user_id: number) => Promise<any>,
-    getCartById: (cart_id: number) => Promise<any>,
-    deleteCartById: (cart_id: number) => Promise<any>,
-    getAmountofItemInCart: (cart_id: number, item_id: number) => Promise<any>,
-    addItemToCart: (cart_id: number, item_id: number, amount: number) => Promise<any>,
-    removeItemFromCart: (cart_id: number, item_id: number, amount: number) => Promise<any>,
-    clearCart: (cart_id: number) => Promise<any>
-    getAllCartIdsByUserId: (user_id: number) => Promise<any[] | Error>
+    getAllItems: () => Promise<ItemDomain[] | Error>,
+    addItem: (name: string, price: number) => Promise<string | Error>,
+    getItemById: (item_id: number) => Promise<ItemDomain | Error>,
+    updateItemById: (item_id: number, name: string, price: number) => Promise<string | Error>,
+    deleteItemById: (item_id: number) => Promise<string | Error>,
+    getAllUsers: () => Promise<UserDomain[] | Error>,
+    addUser: (username: string) => Promise<string | Error>,
+    getUserById: (user_id: number) => Promise<UserDomain | Error>,
+    updateUserById: (user_id: number, username: string) => Promise<string | Error>,
+    deleteUserById: (user_id: number) => Promise<string | Error>,
+    getAllCarts: () => Promise<CartDomain[] | Error>,
+    addCart: (name: string, user_id: number) => Promise<string | Error>,
+    deleteCartsByUserId: (user_id: number) => Promise<string | Error>,
+    getCartById: (cart_id: number) => Promise<CartDomain | Error>,
+    deleteCartById: (cart_id: number) => Promise<string | Error>,
+    getAmountofItemInCart: (cart_id: number, item_id: number) => Promise<number | Error>,
+    addItemToCart: (cart_id: number, item_id: number, amount: number) => Promise<string | Error>,
+    removeItemFromCart: (cart_id: number, item_id: number, amount: number) => Promise<string | Error>,
+    clearCart: (cart_id: number) => Promise<string | Error>
+    getAllCartIdsByUserId: (user_id: number) => Promise<number[] | Error>
     getAllCartsByUserId: (user_id: number) => Promise<CartDomain[] | Error>
 }
 
@@ -137,6 +137,7 @@ const domain :domain = {
         if (addItemToCartResult instanceof Error) {
             return new Error('internal server error');
         }
+        return addItemToCartResult;
     },
 
     removeItemFromCart: async function (cart_id: number, item_id: number, amount: number) {
@@ -159,6 +160,7 @@ const domain :domain = {
         if (updateResult instanceof Error) {
             return new Error('internal server error');
         }
+        return updateResult;
     },
 
     clearCart: async function (cart_id: number) {

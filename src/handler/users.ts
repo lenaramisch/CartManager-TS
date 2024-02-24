@@ -9,6 +9,9 @@ module.exports = {
             if (Object.keys(usersArr).length === 0) {
                 return { status: 404, message: 'No users found'};
             }
+            if (usersArr instanceof Error) {
+                return { status: 500, message: 'Internal Server Error'};
+            }
             const dtoUsers = usersArr.map((user: UserDomain) => new UserDTO(user.id, user.username));
             return { status: 200, data: dtoUsers };
         } catch (err: any) {
@@ -34,7 +37,13 @@ module.exports = {
         }
         try {
             const userResult = await domain.getUserById(userId);
-            const userDto = userResult.map((user: UserDomain) => new UserDTO(user.id, user.username));
+            if (userResult instanceof Error) {
+                return { status: 500, message: 'Internal Server Error'};
+            }
+            if (userResult instanceof Error) {
+                return { status: 500, message: 'Internal Server Error'};
+            }
+            const userDto = new UserDomain(userResult.id, userResult.username)
             if (Object.keys(userDto).length === 0) {
                 return { status: 404, message: `Can not find user (user ID: ${userId})`};
             }

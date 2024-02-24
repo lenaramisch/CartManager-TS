@@ -9,8 +9,11 @@ module.exports = {
             if (Object.keys(itemResult).length === 0) {
                 return { status: 404, message: 'No items found'};
             }
+            if (itemResult instanceof Error) {
+                return { status: 500, message: 'Internal Server Error'};
+            }
             //const dbModelItem: ItemDB[] = dbResult.rows.map((row: ItemRow) => new ItemDB(row.id, row.price, row.name, row.created_at));
-            let itemsDto: ItemDomain[] = itemResult.map((dbItem: ItemDomain)  => new ItemDTO(dbItem.id, dbItem.name, dbItem.price));
+            let itemsDto = itemResult.map((dbItem: ItemDomain)  => new ItemDTO(dbItem.id, dbItem.name, dbItem.price));
             return { status: 200, data: itemsDto };
         } catch (err: any) {
             console.error(err);

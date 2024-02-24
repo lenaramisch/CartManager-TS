@@ -10,25 +10,25 @@ const getItemByIdQuery: string = 'SELECT * FROM items WHERE id = $1';
 const updateItemByIdQuery: string = 'UPDATE items SET name = $2, price = $3 WHERE id = $1';
 const deleteItemByIdQuery: string = 'DELETE FROM items WHERE id = $1';
 //user querys
-const getAllUsersQuery = 'SELECT * FROM users';
-const addUserQuery = 'INSERT INTO users(username) VALUES($1)';
-const getUserByIdQuery = 'SELECT * FROM users WHERE id = $1';
-const updateUserByIdQuery = 'UPDATE users SET username = $2 WHERE id = $1';
-const deleteUserByIdQuery = 'DELETE FROM users WHERE id = $1';
+const getAllUsersQuery: string = 'SELECT * FROM users';
+const addUserQuery: string = 'INSERT INTO users(username) VALUES($1)';
+const getUserByIdQuery: string = 'SELECT * FROM users WHERE id = $1';
+const updateUserByIdQuery: string = 'UPDATE users SET username = $2 WHERE id = $1';
+const deleteUserByIdQuery: string = 'DELETE FROM users WHERE id = $1';
 //cart querys
-const getAllCartsQuery = 'SELECT * FROM carts';
-const addCartQuery = 'INSERT INTO carts(name, user_id) VALUES($1, $2)';
-const deleteCartsByUserIdQuery = 'DELETE FROM carts WHERE user_id = $1';
-const getCartByIdQuery = 'SELECT * FROM carts WHERE id = $1';
-const deleteCartByIdQuery = 'DELETE FROM carts WHERE id = $1';
+const getAllCartsQuery: string = 'SELECT * FROM carts';
+const addCartQuery: string = 'INSERT INTO carts(name, user_id) VALUES($1, $2)';
+const deleteCartsByUserIdQuery: string = 'DELETE FROM carts WHERE user_id = $1';
+const getCartByIdQuery: string = 'SELECT * FROM carts WHERE id = $1';
+const deleteCartByIdQuery: string = 'DELETE FROM carts WHERE id = $1';
 //cart content (item in cart) querys
-const getCartContentQuery = 'SELECT * FROM item_in_cart WHERE cart_id = $1';
-const getItemInCartQuery = 'SELECT * FROM item_in_cart WHERE cart_id = $1 AND item_id = $2';
-const addItemToCartQuery = 'INSERT INTO item_in_cart(cart_id, item_id, amount) VALUES($1, $2, $3)';
-const removeItemFromCartQuery = 'DELETE FROM item_in_cart WHERE cart_id = $1 AND item_id = $2';
-const clearCartQuery = 'DELETE FROM item_in_cart WHERE cart_id = $1';
-const editAmountofItemInCartQuery = 'UPDATE item_in_cart SET amount = $1 WHERE cart_id = $2 AND item_id = $3';
-const getAllCartsByUserIdQuery = 'SELECT * FROM carts WHERE user_id = $1';
+const getCartContentQuery: string = 'SELECT * FROM item_in_cart WHERE cart_id = $1';
+const getItemInCartQuery: string = 'SELECT * FROM item_in_cart WHERE cart_id = $1 AND item_id = $2';
+const addItemToCartQuery: string = 'INSERT INTO item_in_cart(cart_id, item_id, amount) VALUES($1, $2, $3)';
+const removeItemFromCartQuery: string = 'DELETE FROM item_in_cart WHERE cart_id = $1 AND item_id = $2';
+const clearCartQuery: string = 'DELETE FROM item_in_cart WHERE cart_id = $1';
+const editAmountofItemInCartQuery: string = 'UPDATE item_in_cart SET amount = $1 WHERE cart_id = $2 AND item_id = $3';
+const getAllCartsByUserIdQuery: string = 'SELECT * FROM carts WHERE user_id = $1';
 
 interface ItemRow {
     id: number;
@@ -110,7 +110,7 @@ const database: Database = {
             return error;
         }
     },
-    addItem: async function (name, price): Promise< string | Error> {
+    addItem: async function (name, price): Promise<string | Error> {
         try {
             pool.query(addItemQuery, [name, price])
             return "ok"
@@ -280,7 +280,7 @@ const database: Database = {
             if (dbResult.rows.length === 0) {
                 return 0;
             }
-            const dbModelItemInCart = dbResult.rows.map((row: ItemInCartRow )=> new ItemInCartDB(row.id, row.cart_id, row.item_id, row.amount, row.created_at));
+            const dbModelItemInCart: ItemInCartDB[] = dbResult.rows.map((row: ItemInCartRow )=> new ItemInCartDB(row.id, row.cart_id, row.item_id, row.amount, row.created_at));
             return dbModelItemInCart[0].amount;
         } catch (error: any) {
             return error;

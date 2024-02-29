@@ -24,7 +24,7 @@ interface domain {
     clearCart: (cart_id: number) => Promise<string | Error>
     getAllCartIdsByUserId: (user_id: number) => Promise<number[] | Error>
     getAllCartsByUserId: (user_id: number) => Promise<CartDomain[] | Error>
-    calculateCartSum: (content: ItemInCartDomain[]) => Promise<number>
+    calculateCartSum: (content: ItemInCartDomain[]) => number
 }
 
 const domain: domain = {
@@ -105,7 +105,7 @@ const domain: domain = {
         });
         return cart_ids;
     },
-    calculateCartSum: async function (content: ItemInCartDomain[]) {
+    calculateCartSum: function (content: ItemInCartDomain[]) {
         let sum = 0;
         for (let i = 0; i < content.length; i++) {
             let itemInCart: ItemInCartDomain = content[i];

@@ -1,4 +1,5 @@
 import domain from '../domain'
+import { describe, test, expect } from '@jest/globals'; // Add this line
 
 describe('calculate Cart Value', () => {
     test('test 1', () => {
@@ -7,6 +8,7 @@ describe('calculate Cart Value', () => {
             { item: {id: 2, price: 1, name: "Banana"}, amount: 5 },
             { item: {id: 3, price: 0.5, name: "Apple"}, amount: 2 },
         ];
-        expect(domain.calculateCartSum(testData)).toBe(13);
+        const result = domain.calculateCartSum(testData)
+        expect(result).toBe(13);
     })
 });

@@ -25,6 +25,7 @@ export class CartDomain {
         public id: number, 
         public userid: number, 
         public name: string, 
-        public cartItems?: ItemInCartDomain[]
+        public cartItems?: ItemInCartDomain[],
+        public cartValue?: number
     ) {}
 }

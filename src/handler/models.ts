@@ -18,6 +18,7 @@ export class CartDTO {
         public userid: number, 
         public name: string,
         public items?: ItemInCartDTO[],
+        public cartValue?: number
     ) {}
 }
 

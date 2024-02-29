@@ -66,7 +66,7 @@ module.exports = {
             if (domainCart instanceof Error) {
                 return { status: 500, message: 'Internal Server Error'}
             }
-            const dtoCart = new CartDTO(domainCart.id, domainCart.userid, domainCart.name);
+            const dtoCart = new CartDTO(domainCart.id, domainCart.userid, domainCart.name, undefined, domainCart.cartValue);
             if (domainCart.cartItems instanceof Array) {
                 const dtoCartItems = domainCart.cartItems.map((cartItem: ItemInCartDomain) => new ItemInCartDTO(cartItem.item.id, cartItem.amount));
                 dtoCart.items = dtoCartItems

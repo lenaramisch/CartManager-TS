@@ -1,4 +1,4 @@
-import domain from '../domain'
+import domain from './domain/domain'
 import { describe, test, expect } from '@jest/globals'; // Add this line
 
 describe('calculate Cart Value', () => {
